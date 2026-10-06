@@ -2,16 +2,16 @@
   "expo": {
     "name": "Gelir Giderim",
     "slug": "gelir-giderim",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "android": {
       "package": "com.metadigital.gelirgiderim",
-      "versionCode": 2
+      "versionCode": 3
     },
     "ios": {
       "bundleIdentifier": "com.metadigital.gelirgiderim",
-      "buildNumber": "1.1.0"
+      "buildNumber": "1.2.0"
     }
   }
 }
