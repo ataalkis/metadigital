@@ -1,0 +1,41 @@
+{
+  "updatedAt": "2026-10-06T19:00:00+03:00",
+  "sponsorAreas": [
+    {
+      "id": "home_main",
+      "name": "Ana Sayfa Sponsorları",
+      "placement": "home_after_blog",
+      "layout": "horizontal",
+      "active": true,
+      "sponsors": []
+    },
+    {
+      "id": "blog_main",
+      "name": "Blog Sponsorları",
+      "placement": "blog_top",
+      "layout": "horizontal",
+      "active": true,
+      "sponsors": []
+    }
+  ],
+  "blogs": [
+    {
+      "id": "butceye-baslangic",
+      "title": "Bütçeni tek ekranda görmenin 5 faydası",
+      "excerpt": "Gelir, gider, sabit ödeme ve borçlarını aynı yerde takip etmek karar vermeyi kolaylaştırır.",
+      "body": "Aylık bütçeyi yönetmenin ilk adımı paranın nereye gittiğini net biçimde görmektir. Gelir ve giderleri düzenli kaydetmek, sabit ödemeleri takip etmek ve yaklaşan borçları önceden görmek ay sonu sürprizlerini azaltır.\n\nGelir Giderim ile aylık toplamlarını, kategori bazlı harcamalarını, kredi ve sabit ödeme durumunu tek yerde takip edebilirsin.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80",
+      "publishedAt": "2026-10-06",
+      "active": true
+    },
+    {
+      "id": "sabit-odemeler",
+      "title": "Sabit ödemeleri kaçırmamak için basit yöntem",
+      "excerpt": "Kira, faturalar ve kredi taksitlerini aylık plana koyarak bekleyen ödemeleri önceden gör.",
+      "body": "Kira, internet, elektrik, kredi ve kişisel borçlar gibi düzenli ödemeler aylık nakit akışını doğrudan etkiler. Her ödeme için gün ve tutar belirlemek, ödeme yapıldığında işaretlemek ve kalan borcu görmek planlamayı kolaylaştırır.\n\nÖdemeler bölümünde sabit giderlerini, kredilerini ve kişiye olan borçlarını ayrı ayrı takip edebilirsin.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80",
+      "publishedAt": "2026-10-05",
+      "active": true
+    }
+  ]
+}
