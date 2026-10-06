@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Payments from './Payments';
 
 const TX_KEY = '@gelir_giderim_transactions_v1';
 const SETTINGS_KEY = '@gelir_giderim_settings_v1';
@@ -132,12 +133,35 @@ export default function App() {
     setSelectedMonth(monthKey(date));
   };
 
+  const addPaymentExpense = ({ sourcePaymentId, paymentPeriod, amount: paymentAmount, category: paymentCategory, note: paymentNote, date: paymentDate }) => {
+    setItems((old) => {
+      if (old.some((x) => x.sourcePaymentId === sourcePaymentId && x.paymentPeriod === paymentPeriod)) return old;
+      const tx = {
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        type: 'expense',
+        amount: Number(paymentAmount || 0),
+        category: paymentCategory || 'Borç',
+        note: paymentNote || '',
+        date: paymentDate || today(),
+        createdAt: Date.now(),
+        sourcePaymentId,
+        paymentPeriod,
+      };
+      return [tx, ...old];
+    });
+    setSelectedMonth(monthKey(paymentDate || today()));
+  };
+
+  const removePaymentExpense = (sourcePaymentId, paymentPeriod) => {
+    setItems((old) => old.filter((x) => !(x.sourcePaymentId === sourcePaymentId && x.paymentPeriod === paymentPeriod)));
+  };
+
   const remove = (id) => Alert.alert('İşlemi sil', 'Bu kayıt silinsin mi?', [
     { text: 'Vazgeç', style: 'cancel' },
     { text: 'Sil', style: 'destructive', onPress: () => setItems((old) => old.filter((x) => x.id !== id)) },
   ]);
 
-  const clearAll = () => Alert.alert('Tüm verileri sil', 'Bütün gelir ve gider kayıtları kalıcı olarak silinecek.', [
+  const clearAll = () => Alert.alert('Tüm verileri sil', 'Bütün gelir ve gider kayıtları kalıcı olarak silinecek. Ödeme planları bu işlemden etkilenmez.', [
     { text: 'Vazgeç', style: 'cancel' },
     { text: 'Hepsini sil', style: 'destructive', onPress: () => setItems([]) },
   ]);
@@ -159,7 +183,7 @@ export default function App() {
           <View>
             <Text style={s.eyebrow}>KİŞİSEL FİNANS</Text>
             <Text style={s.title}>Gelir Giderim</Text>
-            <Text style={s.subtitle}>Paranın nereye gittiğini tek ekranda gör.</Text>
+            <Text style={s.subtitle}>Paranın nereye gittiğini ve hangi ödemenin ne zaman geleceğini tek ekranda gör.</Text>
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rowGap}>
@@ -176,6 +200,8 @@ export default function App() {
             <Text style={[s.netValue, { color: totals.net < 0 ? C.expense : C.text }]}>{fmt(totals.net)}</Text>
             <Text style={s.muted}>{totals.net >= 0 ? 'Bu ay artıdasın.' : 'Bu ay gider geliri aşmış.'}</Text>
           </View>
+
+          <Payments onAddExpense={addPaymentExpense} onRemoveExpense={removePaymentExpense} />
 
           <View style={s.card}>
             <Text style={s.cardTitle}>Aylık gider hedefi</Text>
