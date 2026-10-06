@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gelir Giderim Admin</title>
+<style>
+:root{--bg:#0b1020;--card:#141b2d;--card2:#101726;--border:#263149;--text:#f5f7fb;--muted:#95a2b8;--accent:#6ea8fe;--green:#2dd4a7;--red:#ff6b6b;--warn:#fbbf24}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:1100px;margin:auto;padding:18px}.top{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}.topin{max-width:1100px;margin:auto;padding:14px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}.eyebrow{font-size:10px;color:var(--accent);font-weight:900;letter-spacing:1.4px}.title{font-size:22px;font-weight:900}.muted{color:var(--muted);font-size:12px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;margin:12px 0}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:11px;color:var(--muted);font-weight:800}input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:11px;color:var(--text);padding:10px 11px;font:inherit;font-size:13px}textarea{min-height:110px;resize:vertical}button{border:0;border-radius:11px;padding:10px 13px;background:var(--accent);color:#071016;font-weight:900;cursor:pointer}button.alt{background:var(--card2);color:var(--text);border:1px solid var(--border)}button.danger{background:rgba(255,107,107,.14);color:var(--red);border:1px solid rgba(255,107,107,.35)}button.good{background:var(--green);color:#071016}.tabs{display:flex;gap:7px;margin:14px 0}.tab{flex:1}.tab.active{outline:2px solid var(--accent)}.sectionTitle{font-size:18px;font-weight:900;margin:0 0 3px}.sub{font-size:12px;color:var(--muted);margin:0 0 10px}.item{background:var(--card2);border:1px solid var(--border);border-radius:15px;padding:13px;margin-top:10px}.itemHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.itemTitle{font-weight:900}.badge{font-size:9px;color:var(--accent);font-weight:900;letter-spacing:.8px}.preview{width:100%;height:130px;object-fit:cover;border-radius:12px;border:1px solid var(--border);background:var(--bg);margin-top:8px}.hidden{display:none!important}.login{max-width:540px;margin:50px auto}.notice{border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.08);padding:11px 12px;border-radius:12px;color:#f7d77a;font-size:12px;line-height:1.5}.status{font-size:12px;color:var(--muted)}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spacer{flex:1}.switch{display:flex;align-items:center;gap:7px}.switch input{width:auto}.sep{height:1px;background:var(--border);margin:12px 0}.small{font-size:11px}.empty{padding:22px;text-align:center;border:1px dashed var(--border);border-radius:14px;color:var(--muted)}@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}.topin{align-items:flex-start}.toolbar{width:100%}.topin{flex-wrap:wrap}.wrap{padding:12px}.card{padding:12px}.title{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="topin"><div><div class="eyebrow">GELİR GİDERİM</div><div class="title">İçerik Yönetimi</div></div><div id="topActions" class="toolbar hidden"><span id="status" class="status">Hazır</span><button class="alt" onclick="loadContent()">Yenile</button><button class="good" onclick="saveAll()">Tümünü Kaydet</button></div></div></div>
+<div class="wrap">
+<section id="login" class="login card">
+<h2 class="sectionTitle">Admin bağlantısı</h2>
+<p class="sub">Bu panel GitHub deposundaki blog ve sponsor içeriğini yönetir.</p>
+<div class="notice">GitHub fine-grained erişim anahtarını buraya gir. Anahtar yalnızca bu sekmenin hafızasında tutulur; depoya veya uygulamaya yazılmaz. Yetki olarak yalnızca bu depo için <b>Contents: Read and write</b> yeterlidir.</div>
+<div class="field" style="margin-top:12px"><label>Yönetim anahtarı</label><input id="token" type="password" placeholder="github_pat_..." autocomplete="off" /></div>
+<div class="row" style="margin-top:12px"><button onclick="connect()">Panele Bağlan</button><span id="loginStatus" class="status"></span></div>
+</section>
+
+<section id="panel" class="hidden">
+<div class="tabs"><button id="tabSponsors" class="tab active" onclick="showTab('sponsors')">Sponsorlar</button><button id="tabBlogs" class="tab alt" onclick="showTab('blogs')">Blog</button></div>
+
+<div id="sponsorsTab">
+<div class="card"><div class="row"><div><h2 class="sectionTitle">Sponsor alanları</h2><p class="sub">Uygulamada nerede sponsor gösterileceğini ve o alandaki kartları yönet.</p></div><div class="spacer"></div><button onclick="addArea()">+ Sponsor Alanı</button></div><div id="areas"></div></div>
+</div>
+
+<div id="blogsTab" class="hidden">
+<div class="card"><div class="row"><div><h2 class="sectionTitle">Blog yazıları</h2><p class="sub">Kapak görseli ana sayfadaki kaydırmalı alanda gösterilir.</p></div><div class="spacer"></div><button onclick="addBlog()">+ Blog Yazısı</button></div><div id="blogs"></div></div>
+</div>
+</section>
+</div>
+<script>
+const OWNER='ataalkis', REPO='metadigital', BRANCH='main';
+const CONTENT_PATH='gelir-giderim/content/content.json';
+const UPLOAD_DIR='gelir-giderim/content/uploads';
+let token=sessionStorage.getItem('gg_admin_token')||'';
+let content={updatedAt:null,sponsorAreas:[],blogs:[]};
+let contentSha='';
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function uid(prefix){return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
+function setStatus(msg,bad=false){$('status').textContent=msg;$('status').style.color=bad?'var(--red)':'var(--muted)'}
+function bytesToB64(bytes){let out='',chunk=0x8000;for(let i=0;i<bytes.length;i+=chunk){out+=String.fromCharCode(...bytes.subarray(i,Math.min(i+chunk,bytes.length)))}return btoa(out)}
+function textToB64(text){return bytesToB64(new TextEncoder().encode(text))}
+function b64ToText(b64){const bin=atob(b64.replace(/\n/g,''));const arr=Uint8Array.from(bin,c=>c.charCodeAt(0));return new TextDecoder().decode(arr)}
+async function gh(url,opt={}){const r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+url,{...opt,headers:{Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',Authorization:'Bearer '+token,'Content-Type':'application/json',...(opt.headers||{})}});if(!r.ok){let t=await r.text();throw new Error(r.status+' '+t.slice(0,220))}return r.status===204?null:r.json()}
+
+async function connect(){token=$('token').value.trim();if(!token)return;$('loginStatus').textContent='Bağlanıyor...';try{sessionStorage.setItem('gg_admin_token',token);await loadContent();$('login').classList.add('hidden');$('panel').classList.remove('hidden');$('topActions').classList.remove('hidden');$('loginStatus').textContent='';}catch(e){$('loginStatus').textContent='Bağlantı başarısız. Anahtarı kontrol et.';sessionStorage.removeItem('gg_admin_token');console.error(e)}}
+
+async function loadContent(){setStatus('İçerik yükleniyor...');const f=await gh('/contents/'+CONTENT_PATH+'?ref='+BRANCH);contentSha=f.sha;content=JSON.parse(b64ToText(f.content));content.sponsorAreas=Array.isArray(content.sponsorAreas)?content.sponsorAreas:[];content.blogs=Array.isArray(content.blogs)?content.blogs:[];render();setStatus('İçerik güncel');}
+
+async function saveAll(){try{setStatus('Kaydediliyor...');content.updatedAt=new Date().toISOString();const body={message:'Update Gelir Giderim managed content',content:textToB64(JSON.stringify(content,null,2)),sha:contentSha,branch:BRANCH};const r=await gh('/contents/'+CONTENT_PATH,{method:'PUT',body:JSON.stringify(body)});contentSha=r.content.sha;setStatus('Kaydedildi ✓');}catch(e){setStatus('Kayıt başarısız',true);alert('Kaydedilemedi: '+e.message)}}
+
+function showTab(which){$('sponsorsTab').classList.toggle('hidden',which!=='sponsors');$('blogsTab').classList.toggle('hidden',which!=='blogs');$('tabSponsors').className='tab '+(which==='sponsors'?'active':'alt');$('tabBlogs').className='tab '+(which==='blogs'?'active':'alt')}
+function render(){renderAreas();renderBlogs()}
+
+function addArea(){content.sponsorAreas.push({id:uid('area'),name:'Yeni Sponsor Alanı',placement:'home_after_blog',layout:'horizontal',active:true,sponsors:[]});renderAreas()}
+function deleteArea(i){if(confirm('Bu sponsor alanı silinsin mi?')){content.sponsorAreas.splice(i,1);renderAreas()}}
+function moveArea(i,d){const j=i+d;if(j<0||j>=content.sponsorAreas.length)return;[content.sponsorAreas[i],content.sponsorAreas[j]]=[content.sponsorAreas[j],content.sponsorAreas[i]];renderAreas()}
+function updArea(i,k,v){content.sponsorAreas[i][k]=v}
+function addSponsor(ai){content.sponsorAreas[ai].sponsors.push({id:uid('sp'),name:'Yeni Sponsor',subtitle:'',imageUrl:'',targetUrl:'',active:true});renderAreas()}
+function deleteSponsor(ai,si){content.sponsorAreas[ai].sponsors.splice(si,1);renderAreas()}
+function moveSponsor(ai,si,d){const a=content.sponsorAreas[ai].sponsors,j=si+d;if(j<0||j>=a.length)return;[a[si],a[j]]=[a[j],a[si]];renderAreas()}
+function updSponsor(ai,si,k,v){content.sponsorAreas[ai].sponsors[si][k]=v}
+
+function renderAreas(){const root=$('areas');if(!content.sponsorAreas.length){root.innerHTML='<div class="empty">Henüz sponsor alanı yok.</div>';return}root.innerHTML=content.sponsorAreas.map((a,ai)=>`<div class="item">
+<div class="itemHead"><div><div class="badge">SPONSOR ALANI</div><div class="itemTitle">${esc(a.name)}</div></div><div class="row"><button class="alt small" onclick="moveArea(${ai},-1)">↑</button><button class="alt small" onclick="moveArea(${ai},1)">↓</button><button class="danger small" onclick="deleteArea(${ai})">Sil</button></div></div>
+<div class="grid3"><div class="field"><label>Alan adı</label><input value="${esc(a.name)}" oninput="updArea(${ai},'name',this.value)"></div><div class="field"><label>Konum</label><select onchange="updArea(${ai},'placement',this.value)"><option value="home_top" ${a.placement==='home_top'?'selected':''}>Ana sayfa üst</option><option value="home_after_blog" ${a.placement==='home_after_blog'?'selected':''}>Ana sayfa blog altı</option><option value="home_bottom" ${a.placement==='home_bottom'?'selected':''}>Ana sayfa alt</option><option value="blog_top" ${a.placement==='blog_top'?'selected':''}>Blog üst</option><option value="blog_bottom" ${a.placement==='blog_bottom'?'selected':''}>Blog alt</option></select></div><div class="field"><label>Görünüm</label><select onchange="updArea(${ai},'layout',this.value)"><option value="horizontal" ${a.layout!=='stack'?'selected':''}>Yatay kaydırmalı</option><option value="stack" ${a.layout==='stack'?'selected':''}>Alt alta</option></select></div></div>
+<div class="row" style="margin-top:9px"><label class="switch"><input type="checkbox" ${a.active!==false?'checked':''} onchange="updArea(${ai},'active',this.checked)"> Alan aktif</label><div class="spacer"></div><button class="alt" onclick="addSponsor(${ai})">+ Sponsor Ekle</button></div>
+<div>${(a.sponsors||[]).map((sp,si)=>sponsorHtml(ai,si,sp)).join('')||'<div class="empty" style="margin-top:10px">Bu alanda sponsor yok.</div>'}</div></div>`).join('')}
+
+function sponsorHtml(ai,si,sp){return `<div class="item" style="border-style:dashed"><div class="itemHead"><div class="itemTitle">${esc(sp.name)}</div><div class="row"><button class="alt small" onclick="moveSponsor(${ai},${si},-1)">↑</button><button class="alt small" onclick="moveSponsor(${ai},${si},1)">↓</button><button class="danger small" onclick="deleteSponsor(${ai},${si})">Sil</button></div></div><div class="grid2"><div class="field"><label>Sponsor adı</label><input value="${esc(sp.name)}" oninput="updSponsor(${ai},${si},'name',this.value)"></div><div class="field"><label>Kısa açıklama</label><input value="${esc(sp.subtitle)}" oninput="updSponsor(${ai},${si},'subtitle',this.value)"></div><div class="field"><label>Tıklama linki</label><input value="${esc(sp.targetUrl)}" placeholder="https://..." oninput="updSponsor(${ai},${si},'targetUrl',this.value)"></div><div class="field"><label>Görsel URL</label><input value="${esc(sp.imageUrl)}" placeholder="https://..." oninput="updSponsor(${ai},${si},'imageUrl',this.value)"></div></div><div class="row" style="margin-top:9px"><label class="switch"><input type="checkbox" ${sp.active!==false?'checked':''} onchange="updSponsor(${ai},${si},'active',this.checked)"> Sponsor aktif</label><div class="spacer"></div><label><input class="hidden" type="file" accept="image/*" onchange="uploadSponsorImage(${ai},${si},this)"><span class="btnUpload" style="display:inline-block;background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-size:12px;font-weight:900;cursor:pointer">Görsel Yükle</span></label></div>${sp.imageUrl?`<img class="preview" src="${esc(sp.imageUrl)}">`:''}</div>`}
+
+function addBlog(){content.blogs.unshift({id:uid('blog'),title:'Yeni Blog Yazısı',excerpt:'',body:'',coverImageUrl:'',publishedAt:new Date().toISOString().slice(0,10),active:true});renderBlogs()}
+function deleteBlog(i){if(confirm('Bu blog yazısı silinsin mi?')){content.blogs.splice(i,1);renderBlogs()}}
+function moveBlog(i,d){const j=i+d;if(j<0||j>=content.blogs.length)return;[content.blogs[i],content.blogs[j]]=[content.blogs[j],content.blogs[i]];renderBlogs()}
+function updBlog(i,k,v){content.blogs[i][k]=v}
+function renderBlogs(){const root=$('blogs');if(!content.blogs.length){root.innerHTML='<div class="empty">Henüz blog yazısı yok.</div>';return}root.innerHTML=content.blogs.map((b,i)=>`<div class="item"><div class="itemHead"><div><div class="badge">BLOG</div><div class="itemTitle">${esc(b.title)}</div></div><div class="row"><button class="alt small" onclick="moveBlog(${i},-1)">↑</button><button class="alt small" onclick="moveBlog(${i},1)">↓</button><button class="danger small" onclick="deleteBlog(${i})">Sil</button></div></div><div class="grid2"><div class="field"><label>Başlık</label><input value="${esc(b.title)}" oninput="updBlog(${i},'title',this.value)"></div><div class="field"><label>Yayın tarihi</label><input type="date" value="${esc(b.publishedAt)}" oninput="updBlog(${i},'publishedAt',this.value)"></div></div><div class="field" style="margin-top:9px"><label>Kısa açıklama</label><textarea oninput="updBlog(${i},'excerpt',this.value)">${esc(b.excerpt)}</textarea></div><div class="field" style="margin-top:9px"><label>Yazı içeriği</label><textarea style="min-height:190px" oninput="updBlog(${i},'body',this.value)">${esc(b.body)}</textarea></div><div class="field" style="margin-top:9px"><label>Kapak görseli URL</label><input value="${esc(b.coverImageUrl)}" oninput="updBlog(${i},'coverImageUrl',this.value)"></div><div class="row" style="margin-top:9px"><label class="switch"><input type="checkbox" ${b.active!==false?'checked':''} onchange="updBlog(${i},'active',this.checked)"> Yayında</label><div class="spacer"></div><label><input class="hidden" type="file" accept="image/*" onchange="uploadBlogImage(${i},this)"><span style="display:inline-block;background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-size:12px;font-weight:900;cursor:pointer">Kapak Görseli Yükle</span></label></div>${b.coverImageUrl?`<img class="preview" src="${esc(b.coverImageUrl)}">`:''}</div>`).join('')}
+
+async function uploadFile(file,prefix){if(!file)return'';setStatus('Görsel yükleniyor...');const ext=(file.name.split('.').pop()||'jpg').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();const safe=(file.name.replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_-]+/g,'-').slice(0,35)||'image');const path=UPLOAD_DIR+'/'+Date.now()+'-'+prefix+'-'+safe+'.'+ext;const bytes=new Uint8Array(await file.arrayBuffer());const body={message:'Upload Gelir Giderim content image',content:bytesToB64(bytes),branch:BRANCH};await gh('/contents/'+path,{method:'PUT',body:JSON.stringify(body)});setStatus('Görsel yüklendi');return 'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/'+path}
+async function uploadSponsorImage(ai,si,input){try{const url=await uploadFile(input.files[0],'sponsor');content.sponsorAreas[ai].sponsors[si].imageUrl=url;renderAreas()}catch(e){setStatus('Görsel yüklenemedi',true);alert(e.message)}}
+async function uploadBlogImage(i,input){try{const url=await uploadFile(input.files[0],'blog');content.blogs[i].coverImageUrl=url;renderBlogs()}catch(e){setStatus('Görsel yüklenemedi',true);alert(e.message)}}
+
+if(token){$('token').value=token;connect()}
+</script>
+</body>
+</html>
