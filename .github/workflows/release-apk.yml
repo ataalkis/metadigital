@@ -1,6 +1,11 @@
 name: Build Signed Android Release
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gelir-giderim/**'
+      - '.github/workflows/release-apk.yml'
   workflow_dispatch:
 
 permissions:
