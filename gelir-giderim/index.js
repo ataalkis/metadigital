@@ -3,8 +3,8 @@ import { Alert, Linking } from 'react-native';
 import { registerRootComponent } from 'expo';
 import App from './App';
 
-const CURRENT_VERSION = '1.2.0';
-const CURRENT_VERSION_CODE = 3;
+const CURRENT_VERSION = '1.3.0';
+const CURRENT_VERSION_CODE = 4;
 const UPDATE_META_URL = 'https://raw.githubusercontent.com/ataalkis/metadigital/main/gelir-giderim/latest.json';
 
 function Root() {
