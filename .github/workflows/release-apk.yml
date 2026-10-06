@@ -53,7 +53,8 @@ jobs:
       - name: Restore release keystore
         shell: bash
         run: |
-          NORMALIZED=$(printf '%s' "$KEYSTORE_B64" \
+          FIRST_LINE=$(printf '%s\n' "$KEYSTORE_B64" | head -n 1)
+          NORMALIZED=$(printf '%s' "$FIRST_LINE" \
             | sed -E 's/^[[:space:]]*GELIR_GIDERIM_KEYSTORE_BASE64[=:][[:space:]]*//' \
             | tr -d '\r\n\t "')
           printf '%s' "$NORMALIZED" | base64 --decode > gelir-giderim/android/app/release.keystore
