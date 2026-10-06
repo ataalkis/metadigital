@@ -3,8 +3,8 @@ import { Alert, Linking } from 'react-native';
 import { registerRootComponent } from 'expo';
 import App from './App';
 
-const CURRENT_VERSION = '1.1.0';
-const CURRENT_VERSION_CODE = 2;
+const CURRENT_VERSION = '1.2.0';
+const CURRENT_VERSION_CODE = 3;
 const UPDATE_META_URL = 'https://raw.githubusercontent.com/ataalkis/metadigital/main/gelir-giderim/latest.json';
 
 function Root() {
@@ -34,9 +34,7 @@ function Root() {
           buttons,
           { cancelable: !required }
         );
-      } catch (_) {
-        // İnternet yoksa uygulama normal çalışmaya devam eder.
-      }
+      } catch (_) {}
     };
 
     const timer = setTimeout(checkForUpdate, 1200);
