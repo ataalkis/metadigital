@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'gelir-giderim/**'
+      - '!gelir-giderim/content/**'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
