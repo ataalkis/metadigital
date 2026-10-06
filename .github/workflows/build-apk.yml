@@ -1,0 +1,55 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gelir-giderim/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
+        working-directory: gelir-giderim
+        run: npm install
+
+      - name: Generate Android project
+        working-directory: gelir-giderim
+        env:
+          CI: '1'
+        run: npx expo prebuild --platform android --clean
+
+      - name: Build debug APK
+        working-directory: gelir-giderim/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Prepare APK
+        run: cp gelir-giderim/android/app/build/outputs/apk/debug/app-debug.apk Gelir-Giderim.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gelir-Giderim-APK
+          path: Gelir-Giderim.apk
+          if-no-files-found: error
