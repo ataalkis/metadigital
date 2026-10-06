@@ -7,6 +7,7 @@ const PAYMENT_KEY = '@gelir_giderim_payments_v1';
 const C = {
   bg: '#0B1020', card: '#141B2D', card2: '#101726', border: '#263149', text: '#F5F7FB', muted: '#95A2B8', income: '#2DD4A7', expense: '#FF6B6B', accent: '#6EA8FE', warning: '#FBBF24',
 };
+const MONTHS = ['OCAK','ŞUBAT','MART','NİSAN','MAYIS','HAZİRAN','TEMMUZ','AĞUSTOS','EYLÜL','EKİM','KASIM','ARALIK'];
 const pad = (n) => String(n).padStart(2, '0');
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 const monthKey = (d) => String(d || '').slice(0, 7);
@@ -18,7 +19,9 @@ function Stat({ label, value, color }) {
 }
 
 export default function Home({ items, content, onNavigate, onOpenBlog }) {
+  const now = new Date();
   const currentMonth = monthKey(today());
+  const monthLabel = MONTHS[now.getMonth()] || 'BU AY';
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
@@ -48,8 +51,10 @@ export default function Home({ items, content, onNavigate, onOpenBlog }) {
     .sort((a, b) => String(b.publishedAt || '').localeCompare(String(a.publishedAt || ''))), [content]);
 
   return <View style={s.wrap}>
+    <SponsorAreas areas={content?.sponsorAreas || []} placement="home_top" />
+
     <View style={s.hero}>
-      <Text style={s.kicker}>EKİM FİNANS ÖZETİ</Text>
+      <Text style={s.kicker}>{monthLabel} FİNANS ÖZETİ</Text>
       <Text style={s.heroLabel}>Bu ay net durum</Text>
       <Text style={[s.heroValue, { color: totals.net < 0 ? C.expense : C.text }]}>{fmt(totals.net)}</Text>
       <View style={s.statRow}>
@@ -82,6 +87,8 @@ export default function Home({ items, content, onNavigate, onOpenBlog }) {
       <View><Text style={s.bottomTitle}>Ayrıntılı finans ekranı</Text><Text style={s.bottomText}>Gelir-gider kalemlerini, bütçeyi ve tüm hareketleri İşlemler bölümünden yönet.</Text></View>
       <Pressable onPress={() => onNavigate('transactions')} style={s.cta}><Text style={s.ctaText}>İşlemlere git</Text></Pressable>
     </View>
+
+    <SponsorAreas areas={content?.sponsorAreas || []} placement="home_bottom" />
   </View>;
 }
 
