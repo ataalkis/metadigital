@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Dashboard from './Dashboard';
+import Home from './Home';
 import Transactions from './Transactions';
 import Payments from './Payments';
+import Blog from './Blog';
+import { useRemoteContent } from './ContentService';
 
 const TX_KEY = '@gelir_giderim_transactions_v1';
 const SETTINGS_KEY = '@gelir_giderim_settings_v1';
@@ -25,6 +27,8 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [transactionInitialType, setTransactionInitialType] = useState('expense');
   const [selectedMonth, setSelectedMonth] = useState(monthKey(today()));
+  const [selectedBlogId, setSelectedBlogId] = useState(null);
+  const { content } = useRemoteContent();
 
   useEffect(() => {
     (async () => {
@@ -57,14 +61,7 @@ export default function App() {
       if (old.some((x) => x.sourcePaymentId === sourcePaymentId && x.paymentPeriod === paymentPeriod)) return old;
       return [{
         id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        type: 'expense',
-        amount: Number(amount || 0),
-        category: category || 'Borç',
-        note: note || '',
-        date: date || today(),
-        createdAt: Date.now(),
-        sourcePaymentId,
-        paymentPeriod,
+        type: 'expense', amount: Number(amount || 0), category: category || 'Borç', note: note || '', date: date || today(), createdAt: Date.now(), sourcePaymentId, paymentPeriod,
       }, ...old];
     });
     setSelectedMonth(monthKey(date || today()));
@@ -76,6 +73,17 @@ export default function App() {
 
   const navigate = (target, initialType) => {
     if (initialType) setTransactionInitialType(initialType);
+    if (target !== 'blog') setSelectedBlogId(null);
+    setTab(target);
+  };
+
+  const openBlog = (id) => {
+    setSelectedBlogId(id);
+    setTab('blog');
+  };
+
+  const selectTab = (target) => {
+    if (target === 'blog') setSelectedBlogId(null);
     setTab(target);
   };
 
@@ -84,17 +92,21 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={s.header}>
-          <View>
-            <Text style={s.eyebrow}>KİŞİSEL FİNANS</Text>
-            <Text style={s.title}>Gelir Giderim</Text>
+          <View style={s.brandRow}>
+            <View>
+              <Text style={s.eyebrow}>GELİR GİDERİM</Text>
+              <Text style={s.title}>{tab === 'home' ? 'Bugün paran nasıl?' : tab === 'transactions' ? 'İşlemler' : tab === 'payments' ? 'Ödemeler' : 'Blog'}</Text>
+            </View>
+            <View style={s.versionBadge}><Text style={s.versionText}>v1.3</Text></View>
           </View>
           <View style={s.tabs}>
             {[
               ['home', 'Ana Sayfa'],
               ['transactions', 'İşlemler'],
               ['payments', 'Ödemeler'],
+              ['blog', 'Blog'],
             ].map(([key, label]) => (
-              <Pressable key={key} onPress={() => setTab(key)} style={[s.tab, tab === key && s.tabActive]}>
+              <Pressable key={key} onPress={() => selectTab(key)} style={[s.tab, tab === key && s.tabActive]}>
                 <Text style={[s.tabText, tab === key && s.tabTextActive]}>{label}</Text>
               </Pressable>
             ))}
@@ -102,24 +114,9 @@ export default function App() {
         </View>
 
         <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
-          {tab === 'home' && (
-            <Dashboard
-              items={items}
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-              budget={budget}
-              setBudget={setBudget}
-              onNavigate={navigate}
-            />
-          )}
+          {tab === 'home' && <Home items={items} content={content} onNavigate={navigate} onOpenBlog={openBlog} />}
           {tab === 'transactions' && (
-            <Transactions
-              items={items}
-              setItems={setItems}
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-              initialType={transactionInitialType}
-            />
+            <Transactions items={items} setItems={setItems} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} initialType={transactionInitialType} />
           )}
           {tab === 'payments' && (
             <View style={{ gap: 10 }}>
@@ -128,7 +125,8 @@ export default function App() {
               <Payments onAddExpense={addPaymentExpense} onRemoveExpense={removePaymentExpense} />
             </View>
           )}
-          <Text style={s.footer}>Veriler bu cihazda saklanır.</Text>
+          {tab === 'blog' && <Blog content={content} initialBlogId={selectedBlogId} onClearInitial={() => setSelectedBlogId(null)} />}
+          <Text style={s.footer}>Finans verilerin bu cihazda saklanır. Blog ve sponsor içerikleri uzaktan güncellenir.</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -138,15 +136,15 @@ export default function App() {
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   header: { paddingHorizontal: 18, paddingTop: 10, paddingBottom: 10, gap: 12, borderBottomWidth: 1, borderBottomColor: C.border, backgroundColor: C.bg },
-  eyebrow: { color: C.accent, fontSize: 10, fontWeight: '900', letterSpacing: 1.5 },
-  title: { color: C.text, fontSize: 25, fontWeight: '900', marginTop: 2 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  eyebrow: { color: C.accent, fontSize: 9, fontWeight: '900', letterSpacing: 1.6 },
+  title: { color: C.text, fontSize: 23, fontWeight: '900', marginTop: 2 },
+  versionBadge: { backgroundColor: C.card2, borderWidth: 1, borderColor: C.border, borderRadius: 99, paddingHorizontal: 9, paddingVertical: 5 },
+  versionText: { color: C.muted, fontSize: 9, fontWeight: '900' },
   tabs: { flexDirection: 'row', backgroundColor: C.card2, borderWidth: 1, borderColor: C.border, padding: 4, borderRadius: 15, gap: 4 },
-  tab: { flex: 1, paddingVertical: 9, borderRadius: 11, alignItems: 'center' },
-  tabActive: { backgroundColor: 'rgba(110,168,254,.16)' },
-  tabText: { color: C.muted, fontSize: 11, fontWeight: '800' },
-  tabTextActive: { color: C.accent },
+  tab: { flex: 1, paddingVertical: 9, borderRadius: 11, alignItems: 'center' }, tabActive: { backgroundColor: 'rgba(110,168,254,.16)' },
+  tabText: { color: C.muted, fontSize: 10, fontWeight: '800' }, tabTextActive: { color: C.accent },
   container: { padding: 18, paddingBottom: 54, gap: 14 },
-  pageTitle: { color: C.text, fontSize: 24, fontWeight: '900' },
-  subtitle: { color: C.muted, fontSize: 12, marginTop: -4 },
-  footer: { color: C.muted, textAlign: 'center', fontSize: 10, marginTop: 4 },
+  pageTitle: { color: C.text, fontSize: 24, fontWeight: '900' }, subtitle: { color: C.muted, fontSize: 12, marginTop: -4 },
+  footer: { color: C.muted, textAlign: 'center', fontSize: 9, marginTop: 6, lineHeight: 14 },
 });
