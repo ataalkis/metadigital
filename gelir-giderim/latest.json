@@ -1,7 +1,7 @@
 {
-  "version": "1.1.0",
-  "versionCode": 2,
+  "version": "1.2.0",
+  "versionCode": 3,
   "minimumVersionCode": 1,
-  "apkUrl": "https://github.com/ataalkis/metadigital/releases/download/v1.1.0/Gelir-Giderim-v1.1.0.apk",
-  "notes": "Ödemeler bölümü eklendi: sabit ödemeler, krediler, kişiye borçlar, bekleyen ödemeler, ödendi/ödenmedi takibi ve kredi kalan borç görünümü."
+  "apkUrl": "https://github.com/ataalkis/metadigital/releases/download/v1.2.0/Gelir-Giderim-v1.2.0.apk",
+  "notes": "Ayrıntılı Ana Sayfa eklendi. Gelir ve giderler kategori bazında kalem kalem görüntüleniyor ve kayıtlar tek tek düzenlenebiliyor. Ana sayfaya tıklanabilir Sponsorlarımız bölümü eklendi."
 }
