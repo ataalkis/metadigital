@@ -9,6 +9,10 @@ on:
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
+concurrency:
+  group: abi-butce-debug-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,11 +50,11 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Prepare APK
-        run: cp gelir-giderim/android/app/build/outputs/apk/debug/app-debug.apk Gelir-Giderim.apk
+        run: cp gelir-giderim/android/app/build/outputs/apk/debug/app-debug.apk ABI-Butce-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Gelir-Giderim-APK
-          path: Gelir-Giderim.apk
+          name: ABI-Butce-debug
+          path: ABI-Butce-debug.apk
           if-no-files-found: error
