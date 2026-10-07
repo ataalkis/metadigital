@@ -8,7 +8,7 @@ const C = {
   bg: '#0B1020', card: '#141B2D', card2: '#101726', border: '#263149',
   text: '#F5F7FB', muted: '#95A2B8', accent: '#6EA8FE', income: '#2DD4A7', expense: '#FF6B6B', warning: '#FBBF24',
 };
-const TYPES = ['Elektrik', 'Su', 'Doğalgaz', 'İnternet', 'Telefon', 'Aidat', 'TV', 'Diğer'];
+const TYPES = ['Elektrik', 'Su', 'Doğalgaz', 'İnternet', 'Telefon', 'Aidat', 'TV', 'Abonelik', 'Diğer'];
 const pad = (n) => String(n).padStart(2, '0');
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 const monthKey = (d) => String(d || '').slice(0, 7);
@@ -59,7 +59,7 @@ export default function Bills({ onAddExpense, onRemoveExpense }) {
     const cleanTitle = title.trim();
     const day = Number(String(dueDay).replace(/[^0-9]/g, ''));
     const value = parseMoney(amount);
-    if (!cleanTitle) return Alert.alert('Açıklama gerekli', 'Örn. Ev elektrik veya Dükkan elektrik yaz.');
+    if (!cleanTitle) return Alert.alert('Açıklama gerekli', 'Örn. Ev elektrik, Netflix veya Dükkan internet yaz.');
     if (day < 1 || day > 31) return Alert.alert('Gün hatalı', 'Son ödeme günü 1 ile 31 arasında olmalı.');
     if (value < 0) return Alert.alert('Tutar hatalı', 'Tutar 0 veya daha büyük olmalı.');
 
@@ -87,7 +87,7 @@ export default function Bills({ onAddExpense, onRemoveExpense }) {
   const togglePaid = (b) => {
     const isPaid = paid(b);
     const billAmount = amountFor(b);
-    if (!isPaid && billAmount <= 0) return Alert.alert('Tutar eksik', 'Ödemeden önce bu ayın fatura tutarını gir.');
+    if (!isPaid && billAmount <= 0) return Alert.alert('Tutar eksik', 'Ödemeden önce bu ayın tutarını gir.');
     if (isPaid) {
       setAllPayments((old) => old.map((x) => {
         if (x.id !== b.id) return x;
@@ -98,16 +98,16 @@ export default function Bills({ onAddExpense, onRemoveExpense }) {
       return;
     }
     setAllPayments((old) => old.map((x) => x.id === b.id ? { ...x, paidPeriods: { ...(x.paidPeriods || {}), [month]: today() } } : x));
-    onAddExpense?.({ sourcePaymentId: b.id, paymentPeriod: month, amount: billAmount, category: 'Fatura', note: `${b.billType || 'Fatura'} · ${b.title || ''}`.trim(), date: today() });
+    onAddExpense?.({ sourcePaymentId: b.id, paymentPeriod: month, amount: billAmount, category: b.billType === 'Abonelik' ? 'Abonelik' : 'Fatura', note: `${b.billType || 'Fatura'} · ${b.title || ''}`.trim(), date: today() });
   };
 
-  const remove = (b) => Alert.alert('Faturayı sil', `${b.title} kaydı silinsin mi?`, [
+  const remove = (b) => Alert.alert('Kaydı sil', `${b.title} kaydı silinsin mi?`, [
     { text: 'Vazgeç', style: 'cancel' },
     { text: 'Sil', style: 'destructive', onPress: () => setAllPayments((old) => old.filter((x) => x.id !== b.id)) },
   ]);
 
   return <View style={s.wrap}>
-    <View><Text style={s.title}>Faturalar</Text><Text style={s.subtitle}>Elektrik, su, doğalgaz ve diğer abonelikleri tek yerde takip et.</Text></View>
+    <View><Text style={s.title}>Faturalar & Abonelikler</Text><Text style={s.subtitle}>Elektrik, su, doğalgaz, internet ve dijital abonelikleri tek yerde takip et.</Text></View>
 
     <View style={s.summaryRow}>
       <View style={s.summary}><Text style={s.summaryLabel}>BEKLEYEN</Text><Text style={[s.summaryValue,{color:C.warning}]}>{formatTRY(totalWaiting)}</Text></View>
@@ -115,30 +115,30 @@ export default function Bills({ onAddExpense, onRemoveExpense }) {
     </View>
 
     <View style={s.card}>
-      <Text style={s.cardTitle}>{editId ? 'Faturayı düzenle' : 'Fatura kaydet'}</Text>
-      <Text style={s.label}>Fatura türü</Text>
+      <Text style={s.cardTitle}>{editId ? 'Kaydı düzenle' : 'Fatura / abonelik kaydet'}</Text>
+      <Text style={s.label}>Tür</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rowGap}>
         {TYPES.map((x) => <Chip key={x} label={x} active={billType === x} onPress={() => setBillType(x)} />)}
       </ScrollView>
       <Text style={s.label}>Açıklama</Text>
-      <TextInput value={title} onChangeText={setTitle} placeholder="Örn. Ev elektrik / Dükkan elektrik" placeholderTextColor={C.muted} style={s.input} />
+      <TextInput value={title} onChangeText={setTitle} placeholder="Örn. Ev elektrik / Netflix / Dükkan internet" placeholderTextColor={C.muted} style={s.input} />
       <Text style={s.label}>Abone / sözleşme no</Text>
-      <TextInput value={subscriberNo} onChangeText={setSubscriberNo} placeholder="Abone numarası" placeholderTextColor={C.muted} style={s.input} />
-      <Text style={s.label}>Fatura kimin üzerine?</Text>
+      <TextInput value={subscriberNo} onChangeText={setSubscriberNo} placeholder="Varsa abone veya sözleşme no" placeholderTextColor={C.muted} style={s.input} />
+      <Text style={s.label}>Kimin üzerine?</Text>
       <TextInput value={owner} onChangeText={setOwner} placeholder="Örn. Atakan Alkış" placeholderTextColor={C.muted} style={s.input} />
-      <Text style={s.label}>Son ödeme günü</Text>
+      <Text style={s.label}>Son ödeme / yenileme günü</Text>
       <TextInput value={dueDay} onChangeText={setDueDay} keyboardType="number-pad" placeholder="15" placeholderTextColor={C.muted} style={s.input} />
       <MoneyInput label="Bu ay tutar" value={amount} onChangeText={setAmount} />
-      <Text style={s.hint}>Tutar her ay değişebilir. Faturaya dokunup yeni ayın tutarını güncelleyebilirsin.</Text>
+      <Text style={s.hint}>Tutar her ay değişebilir. Kayda dokunup yeni ayın tutarını güncelleyebilirsin.</Text>
       <View style={s.actions}>
         {editId && <Pressable onPress={reset} style={s.secondary}><Text style={s.secondaryText}>Vazgeç</Text></Pressable>}
-        <Pressable onPress={save} style={s.primary}><Text style={s.primaryText}>{editId ? 'Değişiklikleri Kaydet' : 'Faturayı Kaydet'}</Text></Pressable>
+        <Pressable onPress={save} style={s.primary}><Text style={s.primaryText}>{editId ? 'Değişiklikleri Kaydet' : 'Kaydet'}</Text></Pressable>
       </View>
     </View>
 
     <View style={s.filterRow}><Chip label="Bekleyen" active={filter==='waiting'} onPress={() => setFilter('waiting')} /><Chip label="Ödendi" active={filter==='paid'} onPress={() => setFilter('paid')} /><Chip label="Tümü" active={filter==='all'} onPress={() => setFilter('all')} /></View>
 
-    {!visible.length ? <View style={s.empty}><Text style={s.emptyTitle}>Bu listede fatura yok</Text><Text style={s.subtitle}>Yukarıdan ilk faturayı ekleyebilirsin.</Text></View> : visible.map((b) => {
+    {!visible.length ? <View style={s.empty}><Text style={s.emptyTitle}>Bu listede kayıt yok</Text><Text style={s.subtitle}>Yukarıdan ilk fatura veya aboneliğini ekleyebilirsin.</Text></View> : visible.map((b) => {
       const isPaid = paid(b); const a = amountFor(b); const due = dueDateFor(b);
       return <View key={b.id} style={[s.bill, isPaid && { borderColor:'rgba(45,212,167,.45)' }]}>
         <Pressable onPress={() => openEdit(b)} onLongPress={() => remove(b)} style={{flex:1}}>
