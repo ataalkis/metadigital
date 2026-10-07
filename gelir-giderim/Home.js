@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SponsorAreas from './SponsorAreas';
+import Exchange from './Exchange';
 
 const PAYMENT_KEY = '@gelir_giderim_payments_v1';
 const C = {
@@ -69,6 +70,10 @@ export default function Home({ items, content, onNavigate, onOpenBlog }) {
       <Pressable onPress={() => onNavigate('transactions', 'expense')} style={s.quick}><Text style={[s.quickSign, { color: C.expense }]}>−</Text><Text style={s.quickText}>Gider ekle</Text></Pressable>
       <Pressable onPress={() => onNavigate('payments')} style={s.quick}><Text style={[s.quickSign, { color: C.accent }]}>◷</Text><Text style={s.quickText}>Ödemeler</Text></Pressable>
     </View>
+
+    <Pressable onPress={() => onNavigate('exchange')}>
+      <Exchange compact />
+    </Pressable>
 
     <View style={s.sectionHead}><Text style={s.sectionTitle}>Blogdan</Text><Pressable onPress={() => onNavigate('blog')}><Text style={s.link}>Tüm yazılar ›</Text></Pressable></View>
     {blogs.length ? (
