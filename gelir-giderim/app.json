@@ -2,7 +2,7 @@
   "expo": {
     "name": "ABI Butce",
     "slug": "gelir-giderim",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "plugins": [
@@ -17,11 +17,11 @@
     ],
     "android": {
       "package": "com.metadigital.gelirgiderim",
-      "versionCode": 6
+      "versionCode": 7
     },
     "ios": {
       "bundleIdentifier": "com.metadigital.gelirgiderim",
-      "buildNumber": "1.5.0"
+      "buildNumber": "1.6.0"
     }
   }
 }
