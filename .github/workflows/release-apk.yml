@@ -1,12 +1,6 @@
 name: Build Signed Android Release
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'gelir-giderim/**'
-      - '!gelir-giderim/content/**'
-      - '.github/workflows/release-apk.yml'
   workflow_dispatch:
 
 permissions:
@@ -77,7 +71,7 @@ jobs:
         run: |
           VERSION=$(node -p "require('./gelir-giderim/app.json').expo.version")
           VERSION_CODE=$(node -p "require('./gelir-giderim/app.json').expo.android.versionCode")
-          APK="Gelir-Giderim-v${VERSION}.apk"
+          APK="ABI-Butce-v${VERSION}.apk"
           cp gelir-giderim/android/app/build/outputs/apk/release/app-release.apk "$APK"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
@@ -92,7 +86,7 @@ jobs:
       - name: Upload signed APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Gelir-Giderim-v${{ steps.version.outputs.version }}-signed
+          name: ABI-Butce-v${{ steps.version.outputs.version }}-signed
           path: ${{ steps.version.outputs.apk }}
           if-no-files-found: error
 
@@ -107,6 +101,6 @@ jobs:
             gh release upload "$TAG" "$APK" --clobber
           else
             gh release create "$TAG" "$APK" \
-              --title "Gelir Giderim $TAG" \
+              --title "ABİ Bütçe $TAG" \
               --notes "Android sürümü $TAG (versionCode ${{ steps.version.outputs.version_code }})."
           fi
