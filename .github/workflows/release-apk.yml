@@ -1,6 +1,12 @@
 name: Build Signed Android Release
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gelir-giderim/**'
+      - '!gelir-giderim/content/**'
+      - '.github/workflows/release-apk.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,43 +24,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Validate signing secrets
         run: |
           test -n "$KEYSTORE_B64" || (echo "Missing GELIR_GIDERIM_KEYSTORE_BASE64" && exit 1)
           test -n "$KEYSTORE_PASSWORD" || (echo "Missing GELIR_GIDERIM_KEYSTORE_PASSWORD" && exit 1)
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Install dependencies
         working-directory: gelir-giderim
         run: npm install
-
       - name: Generate Android project
         working-directory: gelir-giderim
         env:
           CI: '1'
         run: npx expo prebuild --platform android --clean
-
       - name: Restore release keystore
         shell: bash
         run: |
           FIRST_LINE=$(printf '%s\n' "$KEYSTORE_B64" | head -n 1)
-          NORMALIZED=$(printf '%s' "$FIRST_LINE" \
-            | sed -E 's/^[[:space:]]*GELIR_GIDERIM_KEYSTORE_BASE64[=:][[:space:]]*//' \
-            | tr -d '\r\n\t "')
+          NORMALIZED=$(printf '%s' "$FIRST_LINE" | sed -E 's/^[[:space:]]*GELIR_GIDERIM_KEYSTORE_BASE64[=:][[:space:]]*//' | tr -d '\r\n\t "')
           printf '%s' "$NORMALIZED" | base64 --decode > gelir-giderim/android/app/release.keystore
           test -s gelir-giderim/android/app/release.keystore
-
       - name: Build signed release APK
         working-directory: gelir-giderim/android
         run: |
@@ -64,7 +61,6 @@ jobs:
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$KEYSTORE_PASSWORD"
-
       - name: Prepare APK
         id: version
         shell: bash
@@ -76,20 +72,17 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
           echo "apk=$APK" >> "$GITHUB_OUTPUT"
-
       - name: Verify APK signature
         shell: bash
         run: |
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
           "$APKSIGNER" verify --verbose --print-certs "${{ steps.version.outputs.apk }}"
-
       - name: Upload signed APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ABI-Butce-v${{ steps.version.outputs.version }}-signed
           path: ${{ steps.version.outputs.apk }}
           if-no-files-found: error
-
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -100,7 +93,5 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else
-            gh release create "$TAG" "$APK" \
-              --title "ABİ Bütçe $TAG" \
-              --notes "Android sürümü $TAG (versionCode ${{ steps.version.outputs.version_code }})."
+            gh release create "$TAG" "$APK" --title "ABİ Bütçe $TAG" --notes "Android sürümü $TAG (versionCode ${{ steps.version.outputs.version_code }})."
           fi
