@@ -16,9 +16,12 @@ export function parseMoney(value) {
 export function formatMoneyInput(value) {
   let text = String(value ?? '').trim();
   if (!text) return '';
-  text = text.replace(/\./g, ',');
+
+  // Nokta ekranda binlik ayırıcıdır. Ondalık için uygulamadaki virgül tuşu kullanılır.
+  text = text.replace(/\./g, '');
   const firstComma = text.indexOf(',');
   if (firstComma >= 0) text = text.slice(0, firstComma + 1) + text.slice(firstComma + 1).replace(/,/g, '');
+
   const hasComma = text.includes(',');
   const [rawInteger = '', rawDecimals = ''] = text.split(',');
   const integerDigits = rawInteger.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '');
