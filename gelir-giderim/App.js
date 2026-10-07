@@ -5,6 +5,7 @@ import Home from './Home';
 import Transactions from './Transactions';
 import Payments from './Payments';
 import Blog from './Blog';
+import Exchange from './Exchange';
 import { useRemoteContent } from './ContentService';
 
 const TX_KEY = '@gelir_giderim_transactions_v1';
@@ -87,6 +88,12 @@ export default function App() {
     setTab(target);
   };
 
+  const pageTitle = tab === 'home' ? 'Bugün paran nasıl?'
+    : tab === 'transactions' ? 'İşlemler'
+    : tab === 'payments' ? 'Ödemeler'
+    : tab === 'exchange' ? 'Döviz'
+    : 'Blog';
+
   return (
     <SafeAreaView style={s.safe}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
@@ -94,23 +101,24 @@ export default function App() {
         <View style={s.header}>
           <View style={s.brandRow}>
             <View>
-              <Text style={s.eyebrow}>GELİR GİDERİM</Text>
-              <Text style={s.title}>{tab === 'home' ? 'Bugün paran nasıl?' : tab === 'transactions' ? 'İşlemler' : tab === 'payments' ? 'Ödemeler' : 'Blog'}</Text>
+              <Text style={s.eyebrow}>ABİ BÜTÇE</Text>
+              <Text style={s.title}>{pageTitle}</Text>
             </View>
-            <View style={s.versionBadge}><Text style={s.versionText}>v1.3</Text></View>
+            <View style={s.versionBadge}><Text style={s.versionText}>YENİ</Text></View>
           </View>
-          <View style={s.tabs}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabs}>
             {[
               ['home', 'Ana Sayfa'],
               ['transactions', 'İşlemler'],
               ['payments', 'Ödemeler'],
+              ['exchange', 'Döviz'],
               ['blog', 'Blog'],
             ].map(([key, label]) => (
               <Pressable key={key} onPress={() => selectTab(key)} style={[s.tab, tab === key && s.tabActive]}>
                 <Text style={[s.tabText, tab === key && s.tabTextActive]}>{label}</Text>
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
         <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
@@ -121,10 +129,11 @@ export default function App() {
           {tab === 'payments' && (
             <View style={{ gap: 10 }}>
               <Text style={s.pageTitle}>Ödemeler</Text>
-              <Text style={s.subtitle}>Sabit ödemeler, krediler, kişiye borçlar ve bekleyen ödemeler.</Text>
+              <Text style={s.subtitle}>Faturalar, sabit ödemeler, krediler, kişiye borçlar ve bekleyen ödemeler.</Text>
               <Payments onAddExpense={addPaymentExpense} onRemoveExpense={removePaymentExpense} />
             </View>
           )}
+          {tab === 'exchange' && <Exchange />}
           {tab === 'blog' && <Blog content={content} initialBlogId={selectedBlogId} onClearInitial={() => setSelectedBlogId(null)} />}
           <Text style={s.footer}>Finans verilerin bu cihazda saklanır. Blog ve sponsor içerikleri uzaktan güncellenir.</Text>
         </ScrollView>
@@ -141,8 +150,8 @@ const s = StyleSheet.create({
   title: { color: C.text, fontSize: 23, fontWeight: '900', marginTop: 2 },
   versionBadge: { backgroundColor: C.card2, borderWidth: 1, borderColor: C.border, borderRadius: 99, paddingHorizontal: 9, paddingVertical: 5 },
   versionText: { color: C.muted, fontSize: 9, fontWeight: '900' },
-  tabs: { flexDirection: 'row', backgroundColor: C.card2, borderWidth: 1, borderColor: C.border, padding: 4, borderRadius: 15, gap: 4 },
-  tab: { flex: 1, paddingVertical: 9, borderRadius: 11, alignItems: 'center' }, tabActive: { backgroundColor: 'rgba(110,168,254,.16)' },
+  tabs: { backgroundColor: C.card2, borderWidth: 1, borderColor: C.border, padding: 4, borderRadius: 15, gap: 4 },
+  tab: { minWidth: 88, paddingHorizontal: 10, paddingVertical: 9, borderRadius: 11, alignItems: 'center' }, tabActive: { backgroundColor: 'rgba(110,168,254,.16)' },
   tabText: { color: C.muted, fontSize: 10, fontWeight: '800' }, tabTextActive: { color: C.accent },
   container: { padding: 18, paddingBottom: 54, gap: 14 },
   pageTitle: { color: C.text, fontSize: 24, fontWeight: '900' }, subtitle: { color: C.muted, fontSize: 12, marginTop: -4 },
