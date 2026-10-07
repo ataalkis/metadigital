@@ -3,8 +3,8 @@ import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, St
 import MoneyInput, { parseMoney, formatTRY, formatMoneyInput } from './MoneyInput';
 
 const C={bg:'#0B1020',card:'#141B2D',card2:'#101726',border:'#263149',text:'#F5F7FB',muted:'#95A2B8',income:'#2DD4A7',expense:'#FF6B6B',accent:'#6EA8FE'};
-const INCOME=['Maaş','Ek İş','Satış','Tahsilat','Prim','Diğer'];
-const EXPENSE=['Kira','Market','Fatura','Ulaşım','Borç','Kredi','Kredi Kartı','Yemek','Çocuk','İş','Diğer'];
+const INCOME=['Maaş','Kira Geliri','Ek İş','Satış','Tahsilat','Prim','Faiz/Getiri','Diğer'];
+const EXPENSE=['Kira','Market','Benzin','Fatura','Abonelik','Ulaşım','Borç','Kredi','Kredi Kartı','Yemek','Çocuk','Sağlık','İş','Diğer'];
 const pad=(n)=>String(n).padStart(2,'0');
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
 const monthKey=(d)=>String(d||'').slice(0,7);
@@ -33,7 +33,7 @@ export default function Transactions({items,setItems,selectedMonth,setSelectedMo
   const remove=()=>{if(!editing)return;Alert.alert('İşlemi sil','Bu kayıt kalıcı olarak silinsin mi?',[{text:'Vazgeç',style:'cancel'},{text:'Sil',style:'destructive',onPress:()=>{setItems((old)=>old.filter((x)=>x.id!==editing.id));setEditing(null);}}]);};
 
   return <View style={s.wrap}>
-    <View><Text style={s.pageTitle}>Gelir & Giderler</Text><Text style={s.subtitle}>Her kaydı sonradan düzenleyebilirsin. Fatura ve borç ödemeleri “Ödendi” denince buraya otomatik gelir.</Text></View>
+    <View><Text style={s.pageTitle}>Gelir & Giderler</Text><Text style={s.subtitle}>Her kaydı sonradan düzenleyebilirsin. Fatura, kira ve borç ödemeleri işaretlendiğinde buraya otomatik gelir.</Text></View>
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rowGap}>{months.map((m)=><Pill key={m} label={m} active={selectedMonth===m} onPress={()=>setSelectedMonth(m)}/>)}</ScrollView>
     <View style={s.twoCol}><Summary label="AYLIK GELİR" value={totals.income} color={C.income}/><Summary label="AYLIK GİDER" value={totals.expense} color={C.expense}/></View>
 
@@ -42,13 +42,13 @@ export default function Transactions({items,setItems,selectedMonth,setSelectedMo
       <View style={s.segmentRow}><Pressable onPress={()=>setType('expense')} style={[s.segment,type==='expense'&&{backgroundColor:'rgba(255,107,107,.14)'}]}><Text style={{color:type==='expense'?C.expense:C.muted,fontWeight:'900'}}>Gider</Text></Pressable><Pressable onPress={()=>setType('income')} style={[s.segment,type==='income'&&{backgroundColor:'rgba(45,212,167,.14)'}]}><Text style={{color:type==='income'?C.income:C.muted,fontWeight:'900'}}>Gelir</Text></Pressable></View>
       <MoneyInput label="Tutar" value={amount} onChangeText={setAmount}/>
       <Text style={s.label}>Kategori</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.rowGap}>{categories.map((x)=><Pill key={x} label={x} active={category===x} danger={type==='expense'} onPress={()=>setCategory(x)}/>)}</ScrollView>
-      <Text style={s.label}>Açıklama</Text><TextInput value={note} onChangeText={setNote} placeholder="Örn. market alışverişi" placeholderTextColor={C.muted} style={s.input}/>
+      <Text style={s.label}>Açıklama</Text><TextInput value={note} onChangeText={setNote} placeholder="Örn. market alışverişi / benzin" placeholderTextColor={C.muted} style={s.input}/>
       <Text style={s.label}>Tarih</Text><TextInput value={date} onChangeText={setDate} placeholder="YYYY-AA-GG" placeholderTextColor={C.muted} style={s.input}/>
       <Pressable onPress={add} style={[s.primary,{backgroundColor:type==='expense'?C.expense:C.income}]}><Text style={s.primaryText}>{type==='expense'?'Gideri Kaydet':'Geliri Kaydet'}</Text></Pressable>
     </View>
 
     <View style={s.listHead}><Text style={s.cardTitle}>İşlem listesi</Text><View style={s.filterRow}><Pill label="Tümü" active={filter==='all'} onPress={()=>setFilter('all')}/><Pill label="Gelir" active={filter==='income'} onPress={()=>setFilter('income')}/><Pill label="Gider" active={filter==='expense'} danger onPress={()=>setFilter('expense')}/></View></View>
-    {!visible.length?<View style={s.empty}><Text style={s.emptyTitle}>Henüz kayıt yok</Text><Text style={s.subtitle}>İlk gelir veya giderini ekle.</Text></View>:visible.map((x)=><Pressable key={x.id} onPress={()=>openEdit(x)} style={s.tx}><View style={[s.icon,{backgroundColor:x.type==='income'?'rgba(45,212,167,.14)':'rgba(255,107,107,.14)'}]}><Text style={{color:x.type==='income'?C.income:C.expense,fontSize:20,fontWeight:'900'}}>{x.type==='income'?'+':'−'}</Text></View><View style={{flex:1}}><Text style={s.txCat}>{x.category}</Text><Text style={s.txMeta}>{pretty(x.date)}{x.note?` · ${x.note}`:''}</Text>{x.sourcePaymentId&&<Text style={s.auto}>Otomatik ödeme kaydı</Text>}</View><Text style={[s.txAmount,{color:x.type==='income'?C.income:C.expense}]}>{x.type==='income'?'+':'−'}{formatTRY(x.amount)}</Text></Pressable>)}
+    {!visible.length?<View style={s.empty}><Text style={s.emptyTitle}>Henüz kayıt yok</Text><Text style={s.subtitle}>İlk gelir veya giderini ekle.</Text></View>:visible.map((x)=><Pressable key={x.id} onPress={()=>openEdit(x)} style={s.tx}><View style={[s.icon,{backgroundColor:x.type==='income'?'rgba(45,212,167,.14)':'rgba(255,107,107,.14)'}]}><Text style={{color:x.type==='income'?C.income:C.expense,fontSize:20,fontWeight:'900'}}>{x.type==='income'?'+':'−'}</Text></View><View style={{flex:1}}><Text style={s.txCat}>{x.category}</Text><Text style={s.txMeta}>{pretty(x.date)}{x.note?` · ${x.note}`:''}</Text>{x.sourcePaymentId&&<Text style={s.auto}>Otomatik kayıt</Text>}</View><Text style={[s.txAmount,{color:x.type==='income'?C.income:C.expense}]}>{x.type==='income'?'+':'−'}{formatTRY(x.amount)}</Text></Pressable>)}
 
     <Modal visible={Boolean(editing)} transparent animationType="slide" onRequestClose={()=>setEditing(null)}><View style={s.modalShade}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.modalWrap}><ScrollView contentContainerStyle={s.modalCard} keyboardShouldPersistTaps="handled"><View style={s.modalHead}><Text style={s.cardTitle}>İşlemi düzenle</Text><Pressable onPress={()=>setEditing(null)}><Text style={s.close}>Kapat</Text></Pressable></View>
       <View style={s.segmentRow}><Pressable onPress={()=>setEditType('expense')} style={[s.segment,editType==='expense'&&{backgroundColor:'rgba(255,107,107,.14)'}]}><Text style={{color:editType==='expense'?C.expense:C.muted,fontWeight:'900'}}>Gider</Text></Pressable><Pressable onPress={()=>setEditType('income')} style={[s.segment,editType==='income'&&{backgroundColor:'rgba(45,212,167,.14)'}]}><Text style={{color:editType==='income'?C.income:C.muted,fontWeight:'900'}}>Gelir</Text></Pressable></View>
