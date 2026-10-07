@@ -5,6 +5,8 @@ import Home from './Home';
 import Transactions from './Transactions';
 import Payments from './Payments';
 import Bills from './Bills';
+import Rentals from './Rentals';
+import Reports from './Reports';
 import Blog from './Blog';
 import Exchange from './Exchange';
 import Profile from './Profile';
@@ -48,14 +50,15 @@ export default function App(){
     setTab('home');
   };
 
-  const addPaymentExpense=({sourcePaymentId,paymentPeriod,amount,category,note,date})=>{
+  const addLinkedTransaction=({sourcePaymentId,paymentPeriod,type='expense',amount,category,note,date})=>{
     setItems((old)=>{
       if(old.some((x)=>x.sourcePaymentId===sourcePaymentId&&x.paymentPeriod===paymentPeriod))return old;
-      return [{id:`${Date.now()}_${Math.random().toString(36).slice(2,8)}`,type:'expense',amount:Number(amount||0),category:category||'Borç',note:note||'',date:date||today(),createdAt:Date.now(),sourcePaymentId,paymentPeriod},...old];
+      return [{id:`${Date.now()}_${Math.random().toString(36).slice(2,8)}`,type,amount:Number(amount||0),category:category||(type==='income'?'Diğer':'Borç'),note:note||'',date:date||today(),createdAt:Date.now(),sourcePaymentId,paymentPeriod},...old];
     });
     setSelectedMonth(monthKey(date||today()));
   };
-  const removePaymentExpense=(sourcePaymentId,paymentPeriod)=>setItems((old)=>old.filter((x)=>!(x.sourcePaymentId===sourcePaymentId&&x.paymentPeriod===paymentPeriod)));
+  const addPaymentExpense=(payload)=>addLinkedTransaction({...payload,type:'expense'});
+  const removeLinkedTransaction=(sourcePaymentId,paymentPeriod)=>setItems((old)=>old.filter((x)=>!(x.sourcePaymentId===sourcePaymentId&&x.paymentPeriod===paymentPeriod)));
   const navigate=(target,initialType)=>{if(initialType)setTransactionInitialType(initialType);if(target!=='blog')setSelectedBlogId(null);setTab(target);};
   const openBlog=(id)=>{setSelectedBlogId(id);setTab('blog');};
   const selectTab=(target)=>{if(target==='blog')setSelectedBlogId(null);setTab(target);};
@@ -74,22 +77,24 @@ export default function App(){
     </SafeAreaView>;
   }
 
-  const titles={home:'Finans merkezim',transactions:'İşlemler',bills:'Faturalar',payments:'Borçlar & Krediler',exchange:'Döviz',blog:'Blog',profile:'Profilim'};
-  const tabs=[['home','Ana Sayfa'],['transactions','İşlemler'],['bills','Faturalar'],['payments','Borçlar'],['exchange','Döviz'],['blog','Blog'],['profile','Profil']];
+  const titles={home:'Finans merkezim',transactions:'İşlemler',bills:'Faturalar & Abonelikler',payments:'Borçlar & Krediler',rentals:'Kira Takibi',reports:'Raporlar',exchange:'Döviz',blog:'Blog',profile:'Profilim'};
+  const tabs=[['home','Ana Sayfa'],['transactions','İşlemler'],['bills','Faturalar'],['payments','Borçlar'],['rentals','Kira'],['reports','Raporlar'],['exchange','Döviz'],['blog','Blog'],['profile','Profil']];
 
   return <SafeAreaView style={s.safe}>
     <StatusBar barStyle="light-content" backgroundColor={C.bg}/>
     <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==='ios'?'padding':undefined}>
       <View style={s.header}>
-        <View style={s.brandRow}><View><Text style={s.eyebrow}>ABİ BÜTÇE</Text><Text style={s.title}>{titles[tab]||'ABİ Bütçe'}</Text></View><View style={s.versionBadge}><Text style={s.versionText}>v1.5</Text></View></View>
+        <View style={s.brandRow}><View><Text style={s.eyebrow}>ABİ BÜTÇE</Text><Text style={s.title}>{titles[tab]||'ABİ Bütçe'}</Text></View><View style={s.versionBadge}><Text style={s.versionText}>v1.6</Text></View></View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.tabs}>{tabs.map(([key,label])=><Pressable key={key} onPress={()=>selectTab(key)} style={[s.tab,tab===key&&s.tabActive]}><Text style={[s.tabText,tab===key&&s.tabTextActive]}>{label}</Text></Pressable>)}</ScrollView>
       </View>
 
       <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
         {tab==='home'&&<Home items={items} content={content} profile={profile} onNavigate={navigate} onOpenBlog={openBlog}/>} 
         {tab==='transactions'&&<Transactions items={items} setItems={setItems} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} initialType={transactionInitialType}/>} 
-        {tab==='bills'&&<Bills onAddExpense={addPaymentExpense} onRemoveExpense={removePaymentExpense}/>} 
-        {tab==='payments'&&<View style={{gap:10}}><Text style={s.pageTitle}>Borçlar & Krediler</Text><Text style={s.subtitle}>Kira, krediler, kişiye borçlar ve bekleyen ödemeler.</Text><Payments onAddExpense={addPaymentExpense} onRemoveExpense={removePaymentExpense}/></View>} 
+        {tab==='bills'&&<Bills onAddExpense={addPaymentExpense} onRemoveExpense={removeLinkedTransaction}/>} 
+        {tab==='payments'&&<View style={{gap:10}}><Text style={s.pageTitle}>Borçlar & Krediler</Text><Text style={s.subtitle}>Krediler, kişiye borçlar ve bekleyen ödemeler.</Text><Payments onAddExpense={addPaymentExpense} onRemoveExpense={removeLinkedTransaction}/></View>} 
+        {tab==='rentals'&&<Rentals onAddTransaction={addLinkedTransaction} onRemoveTransaction={removeLinkedTransaction}/>} 
+        {tab==='reports'&&<Reports items={items}/>} 
         {tab==='exchange'&&<Exchange/>}
         {tab==='blog'&&<Blog content={content} initialBlogId={selectedBlogId} onClearInitial={()=>setSelectedBlogId(null)}/>} 
         {tab==='profile'&&<Profile profile={profile} onSave={saveProfile}/>} 
