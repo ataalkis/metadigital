@@ -1,13 +1,22 @@
 {
-  "updatedAt": "2026-10-06T19:00:00+03:00",
+  "updatedAt": "2026-10-07T09:06:24.626Z",
   "sponsorAreas": [
     {
       "id": "home_main",
       "name": "Ana Sayfa Sponsorları",
-      "placement": "home_after_blog",
-      "layout": "horizontal",
+      "placement": "home_bottom",
+      "layout": "stack",
       "active": true,
-      "sponsors": []
+      "sponsors": [
+        {
+          "id": "sp_muxvkyph_av6o1",
+          "name": "Joveks Moda",
+          "subtitle": "",
+          "imageUrl": "https://raw.githubusercontent.com/ataalkis/metadigital/main/gelir-giderim/content/uploads/1791363926840-sponsor-227813.png",
+          "targetUrl": "www.joveks.com",
+          "active": true
+        }
+      ]
     },
     {
       "id": "blog_main",
@@ -15,7 +24,16 @@
       "placement": "blog_top",
       "layout": "horizontal",
       "active": true,
-      "sponsors": []
+      "sponsors": [
+        {
+          "id": "sp_muxvu90x_1270b",
+          "name": "Meta Digital",
+          "subtitle": "",
+          "imageUrl": "https://raw.githubusercontent.com/ataalkis/metadigital/main/gelir-giderim/content/uploads/1791363981361-sponsor-130749.jpg",
+          "targetUrl": "www.metadigital.com.tr",
+          "active": true
+        }
+      ]
     }
   ],
   "blogs": [
