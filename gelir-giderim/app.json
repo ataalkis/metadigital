@@ -2,16 +2,26 @@
   "expo": {
     "name": "ABI Butce",
     "slug": "gelir-giderim",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ABİ Bütçe profil fotoğrafı seçebilmen için fotoğraflarına erişir.",
+          "cameraPermission": "ABİ Bütçe profil fotoğrafı çekebilmen için kameraya erişir.",
+          "microphonePermission": false
+        }
+      ]
+    ],
     "android": {
       "package": "com.metadigital.gelirgiderim",
-      "versionCode": 5
+      "versionCode": 6
     },
     "ios": {
       "bundleIdentifier": "com.metadigital.gelirgiderim",
-      "buildNumber": "1.4.0"
+      "buildNumber": "1.5.0"
     }
   }
 }
